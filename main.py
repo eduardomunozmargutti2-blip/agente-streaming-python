@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 
@@ -51,6 +52,24 @@ async def chat_endpoint(payload: ChatRequest):
     return StreamingResponse(
         generate_openai_stream(payload.prompt),
         media_type="text/plain; charset=utf-8",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
+async def generate_sse_stream(prompt: str):
+    """Mesmo stream em formato Server-Sent Events, visível chunk a chunk no Postman."""
+    async for content in generate_openai_stream(prompt):
+        yield f"data: {json.dumps({'content': content}, ensure_ascii=False)}\n\n"
+    yield "data: [DONE]\n\n"
+
+
+@app.post("/chat/sse")
+async def chat_sse_endpoint(payload: ChatRequest):
+    """Variante SSE do /chat, para clientes que exibem streaming apenas em text/event-stream."""
+    get_client()
+    return StreamingResponse(
+        generate_sse_stream(payload.prompt),
+        media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
 

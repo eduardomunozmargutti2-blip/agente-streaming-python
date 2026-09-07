@@ -64,6 +64,16 @@ def test_chat_reports_openai_error(client, monkeypatch):
     assert "[Erro na geração OpenAI: boom]" in response.text
 
 
+def test_chat_sse_streams_events(client, monkeypatch):
+    monkeypatch.setattr(main, "get_client", lambda: FakeClient([make_chunk("Olá")]))
+
+    response = client.post("/chat/sse", json={"prompt": "oi"})
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/event-stream")
+    assert response.text == 'data: {"content": "Olá"}\n\ndata: [DONE]\n\n'
+
+
 def test_chat_requires_prompt(client):
     assert client.post("/chat", json={}).status_code == 422
     assert client.post("/chat", json={"prompt": ""}).status_code == 422

@@ -56,6 +56,7 @@ Servidor em `http://127.0.0.1:8000`.
 | ------ | --------- | ------------------------------------------------------ |
 | GET    | `/`       | Interface web mínima para testar o streaming            |
 | POST   | `/chat`   | Recebe `{"prompt": "..."}` e responde em streaming      |
+| POST   | `/chat/sse` | Mesmo streaming em formato Server-Sent Events         |
 | GET    | `/health` | Status do serviço, modelo e se a API key está definida  |
 
 ## Teste via cURL
@@ -67,6 +68,20 @@ curl -N -X POST http://localhost:8000/chat \
 ```
 
 A flag `-N` desabilita o buffer do cURL, permitindo ver os tokens chegando em tempo real.
+
+## Como confirmar que o streaming está funcionando
+
+- **cURL com `-N`** ou a página em `/`: o texto aparece progressivamente, em vez de tudo de uma vez.
+- **Headers da resposta**: `Transfer-Encoding: chunked` e ausência de `Content-Length` indicam resposta fragmentada.
+- **Postman**: ele só exibe a resposta chunk a chunk quando o tipo é `text/event-stream`. Use
+  `POST /chat/sse` para ver os eventos chegando em tempo real na aba de resposta; em `POST /chat`
+  (`text/plain`) o Postman aguarda o fim e mostra apenas o texto completo.
+
+```bash
+curl -N -X POST http://localhost:8000/chat/sse \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Conte até 10."}'
+```
 
 ## Testes
 
