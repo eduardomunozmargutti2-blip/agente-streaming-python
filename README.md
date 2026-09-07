@@ -14,7 +14,16 @@ O endpoint `POST /chat` chama o modelo com `stream=True` e devolve os tokens ao 
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+# Linux / macOS
+source .venv/bin/activate
+
+# Windows (Git Bash)
+source .venv/Scripts/activate
+
+# Windows (CMD / PowerShell)
+.venv\Scripts\activate
+
 pip install -r requirements.txt
 ```
 
