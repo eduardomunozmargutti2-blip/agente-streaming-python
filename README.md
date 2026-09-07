@@ -64,7 +64,7 @@ Servidor em `http://127.0.0.1:8000`.
 ```bash
 curl -N -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "Escreva um poema de 4 linhas sobre código Python."}'
+  -d '{"prompt": "Escreva um poema de 4 linhas sobre codigo Python."}'
 ```
 
 A flag `-N` desabilita o buffer do cURL, permitindo ver os tokens chegando em tempo real.
@@ -80,8 +80,22 @@ A flag `-N` desabilita o buffer do cURL, permitindo ver os tokens chegando em te
 ```bash
 curl -N -X POST http://localhost:8000/chat/sse \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "Conte até 10."}'
+  -d '{"prompt": "Conte de 1 a 10."}'
 ```
+
+## Troubleshooting
+
+**`400 {"detail":"There was an error parsing the body"}` no Windows (Git Bash/CMD):** o terminal envia
+o corpo em cp1252 e o servidor espera UTF-8. Envie o JSON a partir de um arquivo salvo em UTF-8:
+
+```bash
+printf '{"prompt": "Escreva um poema de 4 linhas sobre codigo Python."}' > body.json
+curl -N -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  --data-binary @body.json
+```
+
+Alternativamente, escreva o prompt sem acentos ou use a interface web em `/`, que sempre envia UTF-8.
 
 ## Testes
 
